@@ -1,0 +1,395 @@
+{
+  "name": "Lead Intake & CRM Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "search",
+        "limit": 1,
+        "filterGroupsUi": {
+          "filterGroupsValues": [
+            {
+              "filtersUi": {
+                "filterValues": [
+                  {
+                    "propertyName": "email|string",
+                    "value": "={{$json[\"Email\"]}}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        -432,
+        -64
+      ],
+      "id": "737e39fe-d249-40ab-b64a-af30a44e8a01",
+      "name": "Search Existing Contact",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "formTitle": "Request a Consultation",
+        "formDescription": "Tell us about your business needs and we’ll get back to you shortly.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Last Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone"
+            },
+            {
+              "fieldLabel": "Company"
+            },
+            {
+              "fieldLabel": "Service Interest",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Workflow Automation"
+                  },
+                  {
+                    "option": "CRM Automation"
+                  },
+                  {
+                    "option": "Data & Reporting"
+                  },
+                  {
+                    "option": "AI-Powered Solutions"
+                  },
+                  {
+                    "option": "Business Operations"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Estimated Budget",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Message",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {
+          "buttonLabel": "Send Request"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -656,
+        -64
+      ],
+      "id": "6bbbe0b7-d532-4825-9777-70f4309e354e",
+      "name": "Lead Intake Form"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "67b40582-332b-47e2-aac9-0cd671e67469",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -208,
+        -64
+      ],
+      "id": "09765fc6-0e95-404c-b6ba-d0b27cfcf74b",
+      "name": "Check Contact Exists"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $('Lead Intake Form').item.json.Email }}",
+        "additionalFields": {
+          "companyName": "={{ $('Lead Intake Form').item.json.Company }}",
+          "customPropertiesUi": {
+            "customPropertiesValues": [
+              {
+                "property": "lead_source",
+                "value": "website"
+              },
+              {
+                "property": "service_interest",
+                "value": "={{\n  {\n    'Workflow Automation': 'workflow_automation',\n    'CRM Automation': 'crm_automation',\n    'Data & Reporting': 'data_reporting',\n    'AI-Powered Solutions': 'ai_powered_solutions',\n    'Business Operations': 'business_operations'\n  }[$('Lead Intake Form').item.json['Service Interest']]\n}}"
+              }
+            ]
+          },
+          "firstName": "={{ $('Lead Intake Form').item.json['First Name'] }}",
+          "lastName": "={{ $('Lead Intake Form').item.json['Last Name'] }}",
+          "phoneNumber": "={{ $('Lead Intake Form').item.json.Phone }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        16,
+        32
+      ],
+      "id": "c714156c-3010-4bcb-b70d-d8978cae4b03",
+      "name": "Create New Contact"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $('Lead Intake Form').item.json.Email }}",
+        "additionalFields": {
+          "companyName": "={{ $('Lead Intake Form').item.json.Company }}",
+          "customPropertiesUi": {
+            "customPropertiesValues": [
+              {
+                "property": "lead_source",
+                "value": "website"
+              },
+              {
+                "property": "service_interest",
+                "value": "={{   {     'Workflow Automation': 'workflow_automation',     'CRM Automation': 'crm_automation',     'Data & Reporting': 'data_reporting',     'AI-Powered Solutions': 'ai_powered_solutions',     'Business Operations': 'business_operations'   }[$('Lead Intake Form').item.json['Service Interest']] }}"
+              }
+            ]
+          },
+          "firstName": "={{ $('Lead Intake Form').item.json['First Name'] }}",
+          "lastName": "={{ $('Lead Intake Form').item.json['Last Name'] }}",
+          "phoneNumber": "={{ $('Lead Intake Form').item.json.Phone }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        16,
+        -160
+      ],
+      "id": "62a73f4a-6e56-431e-87d9-f0585c11464d",
+      "name": "Update Existing Contact"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "deal",
+        "stage": "appointmentscheduled",
+        "additionalFields": {
+          "amount": "={{ $('Lead Intake Form').item.json['Estimated Budget'] }}",
+          "associatedVids": "={{ $('Prepare Existing Contact Data').isExecuted\n    ? $('Prepare Existing Contact Data').item.json.contactId\n    : $('Prepare New Contact Data').item.json.contactId }}",
+          "closeDate": "",
+          "customPropertiesUi": {
+            "customPropertiesValues": [
+              {
+                "property": "lead_source",
+                "value": "website"
+              },
+              {
+                "property": "service_requested",
+                "value": "={{   {     'Workflow Automation': 'workflow_automation',     'CRM Automation': 'crm_automation',     'Data & Reporting': 'data_reporting',     'AI-Powered Solutions': 'ai_powered_solutions',     'Business Operations': 'business_operations'   }[$('Lead Intake Form').item.json['Service Interest']] }}"
+              }
+            ]
+          },
+          "dealName": "={{ $('Lead Intake Form').item.json['First Name'] + ' ' + $('Lead Intake Form').item.json['Last Name'] + ' - ' + $('Lead Intake Form').item.json['Service Interest'] }}",
+          "dealOwner": {
+            "mode": "list",
+            "value": ""
+          }
+        }
+      },
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        -64
+      ],
+      "id": "7ee6baaa-a505-44b9-ae36-cf34cadbb5f2",
+      "name": "Create Lead Deal"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7e85f808-97b3-4e2a-80b5-1d9292ca77d9",
+              "name": "contactId",
+              "value": "={{ $('Update Existing Contact').item.json.vid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        240,
+        -160
+      ],
+      "id": "3bf7328d-6e3e-4085-97bf-29616122c42a",
+      "name": "Prepare Existing Contact Data"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b484e9bc-444b-42a1-9854-327c68a7af67",
+              "name": "contactId",
+              "value": "={{ $('Create New Contact').item.json.vid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        240,
+        32
+      ],
+      "id": "ed197743-a577-45a1-b5b0-7d9c91db1818",
+      "name": "Prepare New Contact Data"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Lead Intake Form": {
+      "main": [
+        [
+          {
+            "node": "Search Existing Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Existing Contact": {
+      "main": [
+        [
+          {
+            "node": "Check Contact Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Contact Exists": {
+      "main": [
+        [
+          {
+            "node": "Update Existing Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create New Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Existing Contact": {
+      "main": [
+        [
+          {
+            "node": "Prepare Existing Contact Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New Contact": {
+      "main": [
+        [
+          {
+            "node": "Prepare New Contact Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Existing Contact Data": {
+      "main": [
+        [
+          {
+            "node": "Create Lead Deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare New Contact Data": {
+      "main": [
+        [
+          {
+            "node": "Create Lead Deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead Deal": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}
